@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: number
+        default: 20
+        required: false
+
+      file:
+        type: string
+        required: true
+
+      environment:
+        type: string
+        required: false
+
+jobs:
+  Deploy:
+    name: Deploy (Node ${{ inputs.node-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Generate Access Token
+        id: auth
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.KDEVBOT_APPID }}
+          private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          architecture: x64
+          cache: npm
+          node-version: ${{ inputs.node-version }}
+
+      - name: Build
+        run: npm i
+
+      - name: Package Extension
+        run: npx vsce package
+
+      - name: Deploy to Releases
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: ${{ inputs.file }}
+          repo-token: ${{ steps.auth.outputs.token }}
+
+      - name: Deploy to Visual Studio Marketplace
+        run: npx vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.AZURE_TOKEN }}

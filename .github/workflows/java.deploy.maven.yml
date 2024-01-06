@@ -1,0 +1,67 @@
+name: Maven Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+
+      java-version:
+        type: number
+        default: 21
+        required: false
+
+jobs:
+  deploy:
+    name: Deploy (Java ${{ inputs.java-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Generate Access Token
+        id: auth
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.KDEVBOT_APPID }}
+          private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          distribution: temurin
+          java-version: ${{ inputs.java-version }}
+
+      - name: Deploy to GitHub Packages
+        run: mvn deploy -DskipTests --no-transfer-progress -P github
+        env:
+          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
+
+      - name: Deploy to GitHub Releases
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: 'target/*.jar'
+          repo-token: ${{ steps.auth.outputs.token }}
+
+      - name: Setup Apache Maven Central
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          distribution: temurin
+          java-version: ${{ inputs.java-version }}
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Deploy to Maven Central
+        run: mvn deploy -DskipTests --no-transfer-progress -P ossrh
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

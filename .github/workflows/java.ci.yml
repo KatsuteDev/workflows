@@ -1,0 +1,153 @@
+name: Java CI
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        type: string
+        default: 8, 11, 17, 21
+        required: false
+
+      package:
+        type: boolean
+        default: false
+        required: false
+
+      codeql-java-version:
+        type: number
+        default: 21
+        required: false
+
+      test:
+        type: boolean
+        default: true
+        required: false
+
+jobs:
+  Compile:
+    name: Compile (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        java: ${{ fromJSON(format('[{0}]', inputs.java-version)) }}
+      fail-fast: false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          cache: maven
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Compile with Maven
+        run: mvn compile -DskipTests --no-transfer-progress
+
+  Package:
+    name: Package (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: Compile
+    if: >-
+      always() && !failure() && !cancelled() &&
+      inputs.package
+    strategy:
+      matrix:
+        java: ${{ fromJSON(format('[{0}]', inputs.java-version)) }}
+      fail-fast: false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          cache: maven
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Package with Maven
+        run: mvn package -DskipTests --no-transfer-progress
+
+  Dependency-Review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: Package
+    if: >-
+      always() && !failure() && !cancelled() &&
+      github.event_name == 'pull_request' &&
+      github.event.repository.private == false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+
+  CodeQL:
+    name: CodeQL (Java ${{ inputs.codeql-java-version}})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: Dependency-Review
+    if: >-
+      always() && !failure() && !cancelled() &&
+      (github.event_name == 'pull_request' || github.actor != 'dependabot[bot]') &&
+      github.event.repository.private == false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+          queries: security-and-quality
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          cache: maven
+          distribution: temurin
+          java-version: ${{ inputs.codeql-java-version }}
+
+      - name: Compile with Maven
+        run: mvn compile -DskipTests --no-transfer-progress
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        # https://github.com/github/codeql-action/issues/1537
+        if: github.event_name != 'merge_group'
+
+  Test:
+    name: Test (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: CodeQL
+    if: >-
+      always() && !failure() && !cancelled() &&
+      inputs.test
+    strategy:
+      matrix:
+        java: ${{ fromJSON(format('[{0}]', inputs.java-version)) }}
+      fail-fast: false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          architecture: x64
+          cache: maven
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Test with Maven
+        run: mvn test -fae --no-transfer-progress

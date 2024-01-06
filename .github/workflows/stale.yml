@@ -9,9 +9,7 @@ jobs:
   stale:
     name: Stale
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
       - name: Generate Access Token
         id: auth
@@ -22,24 +20,33 @@ jobs:
 
       - uses: actions/stale@v9
         with:
-          repo-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+          repo-token: ${{ steps.auth.outputs.token }}
           days-before-stale: 28
           days-before-close: 7
-          stale-issue-message: This issue has been marked as stale because there has been no activity in the last month. This issue will be closed in 1 week if there is no new activity.
-          stale-pr-message: This pull request has been marked as stale because there has been no activity in the last month. This pull request will be closed in 1 week if there is no new activity.
-          close-issue-message: This issue has been closed because there has been no new activity. Open a new issue if not resolved.
-          close-pr-message: This pull request has been closed because there has been no new activity. Open a new pull request if not resolved.
+          stale-issue-message: >-
+            This issue has been marked as stale because there has been no activity in the last month.
+            This issue will be closed in 1 week if there is no new activity.
+          stale-pr-message: >-
+            This pull request has been marked as stale because there has been no activity in the last month.
+            This pull request will be closed in 1 week if there is no new activity.
+          close-issue-message: >-
+            This issue has been closed because there has been no new activity.
+            Open a new issue if not resolved.
+          close-pr-message: >-
+            This pull request has been closed because there has been no new activity.
+            Open a new pull request if not resolved.
           stale-issue-label: stale
           stale-pr-label: stale
           operations-per-run: 100
           exempt-all-milestones: true
           exempt-all-assignees: true
+
   lock:
     name: Lock Stale Issues
     runs-on: ubuntu-latest
     if: >-
       (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'stale')) ||
-      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'stale'))
+      (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'stale'))
     steps:
       - name: Generate Access Token
         id: auth
@@ -50,6 +57,8 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.auth.outputs.token }}
 
       - name: Issue Lock
         continue-on-error: true

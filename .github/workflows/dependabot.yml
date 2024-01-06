@@ -16,9 +16,6 @@ jobs:
           app-id: ${{ secrets.KDEVBOT_APPID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Approve Pull Request
         continue-on-error: true
         env:
