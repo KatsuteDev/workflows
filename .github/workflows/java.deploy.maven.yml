@@ -1,15 +1,17 @@
+# Copyright (C) 2024 Katsute <https://github.com/Katsute>
+
 name: Maven Deploy
 
 on:
   workflow_call:
     inputs:
-      environment:
-        type: string
-        required: false
-
       java-version:
         type: number
         default: 21
+        required: false
+
+      environment:
+        type: string
         required: false
 
 jobs:
@@ -18,12 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ inputs.environment }}
+    if: github.repository_owner == 'KatsuteDev'
     steps:
       - name: Generate Access Token
         id: auth
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.KDEVBOT_APPID }}
+          app-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
       - name: Checkout Repository

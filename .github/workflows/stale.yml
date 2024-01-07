@@ -1,21 +1,22 @@
+# Copyright (C) 2024 Katsute <https://github.com/Katsute>
+
 name: Stale
-on:
-  workflow_call:
-    secrets:
-      token:
-        required: false
+
+on: [workflow_call]
 
 jobs:
   stale:
     name: Stale
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: >-
+      github.repository_owner == 'KatsuteDev' &&
+      github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
       - name: Generate Access Token
         id: auth
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.KDEVBOT_APPID }}
+          app-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
       - uses: actions/stale@v9
@@ -45,6 +46,7 @@ jobs:
     name: Lock Stale Issues
     runs-on: ubuntu-latest
     if: >-
+      github.repository_owner == 'KatsuteDev' &&
       (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'stale')) ||
       (github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'stale'))
     steps:
@@ -52,7 +54,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.KDEVBOT_APPID }}
+          app-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
       - name: Checkout Repository

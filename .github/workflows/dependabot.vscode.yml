@@ -1,3 +1,5 @@
+# Copyright (C) 2024 Katsute <https://github.com/Katsute>
+
 name: Bump VSCode Version
 
 on: [workflow_call]
@@ -8,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: >-
+      github.repository_owner == 'KatsuteDev' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       contains(github.event.pull_request.title, 'Bump @types/vscode from ')
     steps:

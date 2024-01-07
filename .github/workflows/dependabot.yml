@@ -1,3 +1,5 @@
+# Copyright (C) 2024 Katsute <https://github.com/Katsute>
+
 name: Dependabot[bot]
 
 on: [workflow_call, pull_request_target]
@@ -9,23 +11,19 @@ jobs:
     timeout-minutes: 10
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
-      - name: Generate Access Token
-        id: auth
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.KDEVBOT_APPID }}
-          private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Approve Pull Request
         continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
-          PR: ${{ github.event.pull_request.number }}
         run: gh pr review $PR --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
 
       - name: Lock Pull Request
         continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
-          PR: ${{ github.event.pull_request.number }}
         run: gh pr lock $PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
