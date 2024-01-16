@@ -5,6 +5,11 @@ name: npm CI
 on:
   workflow_call:
     inputs:
+      os:
+        type: string
+        default: ubuntu-latest
+        required: false
+
       node-version:
         type: number
         default: 20
@@ -18,7 +23,7 @@ on:
 jobs:
   Compile:
     name: npm CI (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     strategy:
       matrix:
@@ -40,7 +45,7 @@ jobs:
 
   Lint:
     name: npm lint (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     strategy:
       matrix:
@@ -65,7 +70,7 @@ jobs:
 
   Rebuild:
     name: npm rebuild (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: Lint
     if: >-
@@ -90,11 +95,38 @@ jobs:
       - name: Rebuild
         run: npm run rebuild --if-present
 
-  Dependency-Review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
+  Package:
+    name: npm package (Node ${{ matrix.node }})
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: Rebuild
+    if: >-
+      always() && !failure() && !cancelled()
+    strategy:
+      matrix:
+        node: ${{ fromJSON(format('[{0}]', inputs.node-version)) }}
+      fail-fast: false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          architecture: x64
+          node-version: ${{ matrix.node }}
+
+      - name: Build
+        run: npm i
+
+      - name: Rebuild
+        run: npm run package --if-present
+
+  Dependency-Review:
+    name: Dependency Review
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
+    needs: Package
     if: >-
       always() && !failure() && !cancelled() &&
       github.event_name == 'pull_request' &&
@@ -108,7 +140,7 @@ jobs:
 
   CodeQL:
     name: CodeQL (Node ${{ inputs.codeql-node-version }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: Dependency-Review
     if: >-
@@ -142,7 +174,7 @@ jobs:
 
   Test:
     name: npm test (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: CodeQL
     if: >-
