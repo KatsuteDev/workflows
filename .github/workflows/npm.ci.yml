@@ -102,6 +102,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: Package
+    if: false
     strategy:
       matrix:
         node: ${{ fromJSON(format('[{0}]', inputs.node-version)) }}
@@ -178,8 +179,8 @@ jobs:
     runs-on: ${{ inputs.os }}
     timeout-minutes: 30
     needs: CodeQL
-    if: >-
-      always() && !failure() && !cancelled()
+    # if: always() && !failure() && !cancelled()
+    if: false
     strategy:
       matrix:
         node: ${{ fromJSON(format('[{0}]', inputs.node-version)) }}

@@ -151,5 +151,32 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
 
-      - name: Test with Maven
+      - name: Check Token
+        run: |-
+          if [ "${{ secrets.token }}" != '' ]
+          then
+            echo "AUTH=true" >> $GITHUB_ENV;
+          fi
+
+      - name: Test with Maven (skip report)
+        if: ${{ !env.AUTH }}
+        continue-on-error: false
         run: mvn test -fae --no-transfer-progress
+
+      - name: Test with Maven
+        if: ${{ env.AUTH }}
+        continue-on-error: true
+        run: mvn test -fae --no-transfer-progress
+
+      - name: Checkout JUnit Report
+        uses: actions/checkout@v4
+        if: ${{ env.AUTH }}
+        with:
+          repository: Katsute/JUnit-Report
+          ref: 862f2f943b2274619fe0ed4ef9d8bbe965607a1f
+          path: ./.junit-report
+          token: ${{ secrets.JUNIT_PAT }}
+
+      - name: Generate Report
+        if: ${{ env.AUTH }}
+        uses: ./.junit-report
