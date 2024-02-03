@@ -182,7 +182,7 @@ jobs:
         if: github.event_name != 'merge_group'
         with:
           patterns: |-
-            -dist/**.js
+            -dist/**/*.js
           input: .sarif-results/javascript.sarif
           output: .sarif-results/javascript.sarif
 
