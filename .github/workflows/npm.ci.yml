@@ -187,7 +187,7 @@ jobs:
           output: .sarif-results/javascript.sarif
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: github.event_name != 'merge_group'
         with:
           sarif_file: .sarif-results/javascript.sarif
