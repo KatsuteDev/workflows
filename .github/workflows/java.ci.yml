@@ -153,7 +153,7 @@ jobs:
 
       - name: Check Token
         run: |-
-          if [ "${{ secrets.token }}" != '' ]
+          if [ "${{ secrets.JUNIT_PAT }}" != '' ]
           then
             echo "AUTH=true" >> $GITHUB_ENV;
           fi
