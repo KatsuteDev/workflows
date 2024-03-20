@@ -43,7 +43,7 @@ jobs:
       - name: Deploy to GitHub Packages
         run: mvn deploy -DskipTests --no-transfer-progress -P github
         env:
-          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Deploy to GitHub Releases
         uses: AButler/upload-release-assets@v3.0
