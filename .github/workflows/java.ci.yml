@@ -7,7 +7,7 @@ on:
     inputs:
       java-version:
         type: string
-        default: 8, 11, 17, 21
+        default: 8, 11, 17, 21, 22
         required: false
 
       package:
