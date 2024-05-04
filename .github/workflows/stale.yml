@@ -22,20 +22,16 @@ jobs:
       - uses: actions/stale@v9
         with:
           repo-token: ${{ steps.auth.outputs.token }}
-          days-before-stale: 28
+          days-before-stale: 14
           days-before-close: 7
           stale-issue-message: >-
-            This issue has been marked as stale because there has been no activity in the last month.
-            This issue will be closed in 1 week if there is no new activity.
+            This issue has been marked as stale due to inactivity.
           stale-pr-message: >-
-            This pull request has been marked as stale because there has been no activity in the last month.
-            This pull request will be closed in 1 week if there is no new activity.
+            This pull request has been marked as stale due to inactivity.
           close-issue-message: >-
-            This issue has been closed because there has been no new activity.
-            Open a new issue if not resolved.
+            This issue has been closed due to inactivity.
           close-pr-message: >-
-            This pull request has been closed because there has been no new activity.
-            Open a new pull request if not resolved.
+            This pull request has been closed due to inactivity.
           stale-issue-label: stale
           stale-pr-label: stale
           operations-per-run: 100
