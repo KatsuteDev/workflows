@@ -182,7 +182,7 @@ jobs:
         if: ${{ env.authenticated }}
         with:
           repository: KatsuteDev/junit-report
-          ref: bc106f1790b25d6fe951a9baab3816fec37ac33d
+          ref: d3dfb9b2130d3077a4972a2f2cc6fc862edf151e
           path: ./.junit-report
           token: ${{ steps.auth.outputs.token }}
 
