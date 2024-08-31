@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Java
         uses: actions/setup-java@v4
@@ -64,6 +66,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Java
         uses: actions/setup-java@v4
@@ -88,6 +92,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
@@ -104,6 +110,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install CodeQL
         uses: github/codeql-action/init@v3
@@ -142,6 +150,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Java
         uses: actions/setup-java@v4

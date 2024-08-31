@@ -30,6 +30,8 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
         # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md#:~:text=WiX%20Toolset
       - name: Add WiX Toolset to Path
