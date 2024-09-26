@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Releases
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: '**.vsix'
+          files: '*.vsix'
           repo-token: ${{ steps.auth.outputs.token }}
 
       - name: Deploy to Visual Studio Marketplace
