@@ -161,41 +161,5 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
 
-      - name: Check Token
-        run: |-
-          if [ "${{ secrets.KDEVBOT_PRIVATE_KEY }}" != '' ]
-          then
-            echo "authenticated=true" >> $GITHUB_ENV;
-          fi
-
-      - name: Test with Maven (skip report)
-        if: ${{ !env.authenticated }}
-        continue-on-error: false
-        run: mvn test -fae --no-transfer-progress
-
       - name: Test with Maven
-        if: ${{ env.authenticated }}
-        continue-on-error: true
         run: mvn test -fae --no-transfer-progress
-
-      - name: Authenticate
-        id: auth
-        if: ${{ env.authenticated }}
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.KDEVBOT_APP_ID }}
-          private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
-          owner: KatsuteDev
-
-      - name: Checkout JUnit Report
-        uses: actions/checkout@v4
-        if: ${{ env.authenticated }}
-        with:
-          repository: KatsuteDev/junit-report
-          ref: d3dfb9b2130d3077a4972a2f2cc6fc862edf151e
-          path: ./.junit-report
-          token: ${{ steps.auth.outputs.token }}
-
-      - name: Generate Report
-        if: ${{ env.authenticated }}
-        uses: ./.junit-report
