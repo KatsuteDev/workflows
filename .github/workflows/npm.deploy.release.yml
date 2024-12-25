@@ -7,7 +7,7 @@ on:
     inputs:
       node-version:
         type: number
-        default: 20
+        default: 22
         required: false
 
       environment:

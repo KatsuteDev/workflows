@@ -12,12 +12,12 @@ on:
 
       node-version:
         type: number
-        default: 20
+        default: 22
         required: false
 
       codeql-node-version:
         type: number
-        default: 20
+        default: 22
         required: false
 
 jobs:
