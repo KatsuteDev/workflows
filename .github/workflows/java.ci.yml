@@ -17,7 +17,7 @@ on:
 
       codeql-java-version:
         type: number
-        default: 21
+        default: 25
         required: false
 
       test:
