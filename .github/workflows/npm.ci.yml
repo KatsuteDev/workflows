@@ -137,7 +137,7 @@ jobs:
           submodules: recursive
 
       - name: Install CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript
           queries: security-and-quality
@@ -153,7 +153,7 @@ jobs:
         run: npm i
 
       - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         # https://github.com/github/codeql-action/issues/1537
         if: github.event_name != 'merge_group'
         with:
@@ -170,7 +170,7 @@ jobs:
           output: .sarif-results/javascript.sarif
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: github.event_name != 'merge_group'
         with:
           sarif_file: .sarif-results/javascript.sarif
