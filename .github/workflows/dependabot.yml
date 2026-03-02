@@ -20,10 +20,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
-
-      - name: Lock Pull Request
-        continue-on-error: true
-        run: gh pr lock $PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
