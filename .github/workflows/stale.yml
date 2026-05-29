@@ -16,7 +16,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.KDEVBOT_APP_ID }}
+          client-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
       - uses: actions/stale@v10
@@ -50,7 +50,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.KDEVBOT_APP_ID }}
+          client-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
       - name: Checkout Repository
