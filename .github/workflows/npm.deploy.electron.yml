@@ -55,7 +55,7 @@ jobs:
         run: npm run make
 
       - name: Deploy to Releases
-        uses: AButler/upload-release-assets@v3.0
+        uses: AButler/upload-release-assets@v4.0
         with:
           files: 'out/make/**/*.exe;out/make/**/*.msi;out/make/**/*.zip'
           repo-token: ${{ steps.auth.outputs.token }}

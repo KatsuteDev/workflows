@@ -51,7 +51,7 @@ jobs:
         run: npm run rebuild --if-present
 
       - name: Deploy to Releases
-        uses: AButler/upload-release-assets@v3.0
+        uses: AButler/upload-release-assets@v4.0
         with:
           files: ${{ inputs.file }}
           repo-token: ${{ steps.auth.outputs.token }}

@@ -47,7 +47,7 @@ jobs:
         run: npx vsce package
 
       - name: Deploy to Releases
-        uses: AButler/upload-release-assets@v3.0
+        uses: AButler/upload-release-assets@v4.0
         with:
           files: '*.vsix'
           repo-token: ${{ steps.auth.outputs.token }}
