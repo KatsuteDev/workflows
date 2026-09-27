@@ -1,8 +1,11 @@
-# Copyright (C) 2025 Katsute <https://github.com/Katsute>
+# Copyright (C) 2026 Katsute <https://github.com/Katsute>
 
 name: Dependabot[bot]
 
-on: [workflow_call, pull_request_target]
+on: [workflow_call, pull_request]
+
+permissions:
+  pull-requests: write
 
 jobs:
   dependabot:
@@ -11,12 +14,43 @@ jobs:
     timeout-minutes: 10
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
+      - name: Fetch Metadata
+        id: metadata
+        continue-on-error: true
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename Pull Request
+        continue-on-error: true
+        run: |-
+          if [[ "$TITLE" =~ ^Bump\ the\ [^\ ]+\ group ]] && [ -n "$DEPENDENCIES" ]; then
+            mapfile -t NAMES < <(tr ',' '\n' <<< "$DEPENDENCIES" | sed -E 's/^ +| +$//g' | awk 'NF && !seen[$0]++')
+            LIST="$(IFS=,; echo "${NAMES[*]:0:5}" | sed 's/,/, /g')"
+            REST=$(( ${#NAMES[@]} - 5 ))
+            if [ $REST -eq 1 ]; then
+              LIST="$LIST and 1 other"
+            elif [ $REST -gt 1 ]; then
+              LIST="$LIST and $REST others"
+            fi
+            NEW_TITLE="Bump $LIST"
+          else
+            NEW_TITLE="$(sed -E 's/ in the [^ ]+ group( across [0-9]+ director(y|ies))?//' <<< "$TITLE")"
+          fi
+          if [ "$NEW_TITLE" != "$TITLE" ]; then
+            gh pr edit --repo $REPO $PR --title "$NEW_TITLE"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          TITLE: ${{ github.event.pull_request.title }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
 
       - name: Approve Pull Request
         continue-on-error: true
-        run: gh pr review $PR --approve
+        run: gh pr review --repo $REPO $PR --approve
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}

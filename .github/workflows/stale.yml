@@ -53,15 +53,11 @@ jobs:
           client-id: ${{ secrets.KDEVBOT_APP_ID }}
           private-key: ${{ secrets.KDEVBOT_PRIVATE_KEY }}
 
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-        with:
-          token: ${{ steps.auth.outputs.token }}
-
       - name: Issue Lock
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
+          REPO: ${{ github.repository }}
           ISSUE: ${{ github.event.issue && 'issue' || 'pr' }}
           NUMBER: ${{ github.event.issue && github.event.issue.number || github.event.pull_request.number }}
-        run: gh $ISSUE lock $NUMBER
+        run: gh $ISSUE lock --repo $REPO $NUMBER
